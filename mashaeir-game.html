@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مشاعر - لعبة الأزواج</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700&display=swap');
+
+  :root {
+    --rose: #e8637a;
+    --rose-light: #f4a0b0;
+    --rose-pale: #fde8ec;
+    --rose-deep: #c0394f;
+    --cream: #fff8f9;
+    --dark: #3a1a20;
+    --gold: #d4a853;
+    --shadow: rgba(232, 99, 122, 0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: var(--cream);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(232,99,122,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(244,160,176,0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* floating hearts background */
+  .hearts-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .heart-float {
+    position: absolute;
+    opacity: 0.06;
+    animation: floatUp linear infinite;
+    font-size: 1.5rem;
+    color: var(--rose);
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.06; }
+    90% { opacity: 0.06; }
+    100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+  }
+
+  /* SCREENS */
+  .screen {
+    display: none;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 480px;
+    padding: 24px 20px;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .screen.active { display: flex; flex-direction: column; align-items: center; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* LOGO */
+  .logo {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .logo-heart {
+    font-size: 3.5rem;
+    display: block;
+    animation: heartbeat 2s ease-in-out infinite;
+    margin-bottom: 8px;
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.15); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.1); }
+    70% { transform: scale(1); }
+  }
+
+  .logo h1 {
+    font-family: 'Amiri', serif;
+    font-size: 3rem;
+    color: var(--rose);
+    line-height: 1;
+    letter-spacing: 2px;
+  }
+
+  .logo p {
+    font-size: 0.95rem;
+    color: var(--rose-light);
+    font-weight: 300;
+    margin-top: 6px;
+  }
+
+  /* CATEGORY BUTTONS */
+  .categories {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+
+  .cat-btn {
+    background: white;
+    border: 2px solid var(--rose-pale);
+    border-radius: 20px;
+    padding: 20px 14px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cat-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--rose-pale), white);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .cat-btn:hover::before, .cat-btn.selected::before { opacity: 1; }
+  .cat-btn.selected { border-color: var(--rose); transform: translateY(-3px); }
+  .cat-btn.selected .cat-icon { transform: scale(1.2); }
+
+  .cat-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s;
+  }
+
+  .cat-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--dark);
+    position: relative;
+    z-index: 1;
+  }
+
+  .cat-count {
+    font-size: 0.75rem;
+    color: var(--rose-light);
+    margin-top: 4px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* BUTTONS */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 16px 48px;
+    font-size: 1.1rem;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 24px var(--shadow);
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px var(--shadow);
+  }
+
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    background: white;
+    color: var(--rose);
+    border: 2px solid var(--rose-pale);
+    border-radius: 50px;
+    padding: 12px 36px;
+    font-size: 1rem;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 12px;
+  }
+
+  .btn-secondary:hover { border-color: var(--rose); color: var(--rose-deep); }
+
+  /* CARD */
+  .card-wrapper {
+    width: 100%;
+    perspective: 1000px;
+    margin: 20px 0;
+  }
+
+  .card {
+    width: 100%;
+    min-height: 320px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .card.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 28px;
+    box-shadow: 0 16px 48px var(--shadow);
+  }
+
+  .card-front {
+    background: linear-gradient(145deg, #fff, var(--rose-pale));
+    border: 2px solid rgba(232,99,122,0.2);
+  }
+
+  .card-front .tap-hint {
+    font-size: 0.85rem;
+    color: var(--rose-light);
+    margin-top: 16px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .card-back {
+    background: linear-gradient(145deg, var(--rose), var(--rose-deep));
+    transform: rotateY(180deg);
+  }
+
+  .card-back .question-text {
+    font-family: 'Amiri', serif;
+    font-size: 1.35rem;
+    color: white;
+    text-align: center;
+    line-height: 1.8;
+    font-weight: 400;
+  }
+
+  .card-back .q-number {
+    position: absolute;
+    top: 18px;
+    left: 22px;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+    font-weight: 300;
+  }
+
+  .card-back .q-category {
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    font-size: 0.75rem;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    padding: 3px 12px;
+    border-radius: 20px;
+  }
+
+  .card-back .heart-deco {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    opacity: 0.7;
+  }
+
+  /* PROGRESS */
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--rose-pale);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--rose-light), var(--rose));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+  }
+
+  .progress-text {
+    font-size: 0.8rem;
+    color: var(--rose-light);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  /* GAME CONTROLS */
+  .game-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .ctrl-btn {
+    background: white;
+    border: 2px solid var(--rose-pale);
+    border-radius: 50px;
+    padding: 10px 24px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.9rem;
+    color: var(--rose);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    font-weight: 600;
+  }
+
+  .ctrl-btn:hover { border-color: var(--rose); background: var(--rose-pale); }
+  .ctrl-btn span { font-size: 1rem; }
+
+  /* STATS */
+  .stats-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .stat-box {
+    background: white;
+    border-radius: 16px;
+    padding: 12px 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px var(--shadow);
+    border: 1.5px solid var(--rose-pale);
+  }
+
+  .stat-num {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--rose);
+    font-family: 'Amiri', serif;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--rose-light);
+    margin-top: 2px;
+  }
+
+  /* CATEGORY FILTER TABS */
+  .filter-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    width: 100%;
+    margin-bottom: 16px;
+    scrollbar-width: none;
+  }
+
+  .filter-tabs::-webkit-scrollbar { display: none; }
+
+  .filter-tab {
+    flex-shrink: 0;
+    background: white;
+    border: 1.5px solid var(--rose-pale);
+    border-radius: 50px;
+    padding: 7px 18px;
+    font-size: 0.82rem;
+    font-family: 'Tajawal', sans-serif;
+    color: var(--rose);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+  }
+
+  .filter-tab.active {
+    background: var(--rose);
+    color: white;
+    border-color: var(--rose);
+  }
+
+  /* END SCREEN */
+  .confetti-emoji {
+    font-size: 4rem;
+    animation: spin 1s ease-out;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(-30deg) scale(0.5); opacity: 0; }
+    to { transform: rotate(0) scale(1); opacity: 1; }
+  }
+
+  .end-title {
+    font-family: 'Amiri', serif;
+    font-size: 2rem;
+    color: var(--rose);
+    margin: 16px 0 8px;
+  }
+
+  .end-subtitle {
+    color: var(--rose-light);
+    font-size: 0.95rem;
+    text-align: center;
+    line-height: 1.6;
+    max-width: 320px;
+    margin-bottom: 28px;
+  }
+
+  .card-front-icon {
+    font-size: 4rem;
+    margin-bottom: 12px;
+  }
+
+  .card-front-title {
+    font-family: 'Amiri', serif;
+    font-size: 2rem;
+    color: var(--rose);
+  }
+
+  /* SCROLLABLE QUESTIONS (browse mode) */
+  .q-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--rose-pale) transparent;
+  }
+
+  .q-item {
+    background: white;
+    border: 1.5px solid var(--rose-pale);
+    border-radius: 16px;
+    padding: 14px 18px;
+    font-size: 0.95rem;
+    color: var(--dark);
+    line-height: 1.6;
+    font-family: 'Amiri', serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .q-item:hover { border-color: var(--rose); background: var(--rose-pale); }
+
+  .section-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--rose-light);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="hearts-bg" id="heartsBg"></div>
+
+<!-- HOME SCREEN -->
+<div class="screen active" id="homeScreen">
+  <div class="logo">
+    <span class="logo-heart">🤍</span>
+    <h1>مشاعر</h1>
+    <p>مشاعر وكلام عن القلب في بكرة كرت</p>
+  </div>
+
+  <p class="section-title">اختار فئة أو العب الكل</p>
+
+  <div class="categories">
+    <button class="cat-btn selected" onclick="selectCat('all', this)">
+      <span class="cat-icon">💝</span>
+      <div class="cat-name">كل الأسئلة</div>
+      <div class="cat-count">+500 سؤال</div>
+    </button>
+    <button class="cat-btn" onclick="selectCat('love', this)">
+      <span class="cat-icon">❤️</span>
+      <div class="cat-name">الحب والعلاقة</div>
+      <div class="cat-count">100 سؤال</div>
+    </button>
+    <button class="cat-btn" onclick="selectCat('future', this)">
+      <span class="cat-icon">🌙</span>
+      <div class="cat-name">المستقبل والأحلام</div>
+      <div class="cat-count">100 سؤال</div>
+    </button>
+    <button class="cat-btn" onclick="selectCat('fun', this)">
+      <span class="cat-icon">😄</span>
+      <div class="cat-name">مرح وضحك</div>
+      <div class="cat-count">100 سؤال</div>
+    </button>
+    <button class="cat-btn" onclick="selectCat('deep', this)">
+      <span class="cat-icon">🌹</span>
+      <div class="cat-name">أسئلة عميقة</div>
+      <div class="cat-count">100 سؤال</div>
+    </button>
+    <button class="cat-btn" onclick="selectCat('daily', this)">
+      <span class="cat-icon">☀️</span>
+      <div class="cat-name">الحياة اليومية</div>
+      <div class="cat-count">100 سؤال</div>
+    </button>
+  </div>
+
+  <button class="btn-primary" onclick="startGame()">ابدأ اللعبة ✨</button>
+  <button class="btn-secondary" onclick="showBrowse()">تصفح الأسئلة</button>
+</div>
+
+<!-- GAME SCREEN -->
+<div class="screen" id="gameScreen">
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+  <div class="progress-text" id="progressText"></div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-num" id="statAnswered">0</div>
+      <div class="stat-label">تم الإجابة</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="statRemaining">0</div>
+      <div class="stat-label">متبقي</div>
+    </div>
+  </div>
+
+  <div class="card-wrapper">
+    <div class="card" id="gameCard" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="card-front-icon">💌</div>
+        <div class="card-front-title">اضغط للكشف</div>
+        <div class="tap-hint">اضغط على الكرت عشان تشوف السؤال</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="q-number" id="qNumber"></div>
+        <div class="q-category" id="qCategory"></div>
+        <div class="heart-deco">💗</div>
+        <div class="question-text" id="questionText"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-controls">
+    <button class="ctrl-btn" onclick="prevCard()"><span>◀</span> السابق</button>
+    <button class="ctrl-btn" onclick="flipCard()"><span>🔄</span> اقلب</button>
+    <button class="ctrl-btn" onclick="nextCard()">التالي <span>▶</span></button>
+  </div>
+  <div class="game-controls" style="margin-top:8px;">
+    <button class="ctrl-btn" onclick="shuffleCards()"><span>🔀</span> خلط</button>
+    <button class="ctrl-btn" onclick="goHome()"><span>🏠</span> الرئيسية</button>
+  </div>
+</div>
+
+<!-- BROWSE SCREEN -->
+<div class="screen" id="browseScreen">
+  <div class="logo" style="margin-bottom: 16px;">
+    <span style="font-family:'Amiri',serif;font-size:1.8rem;color:var(--rose);">تصفح الأسئلة</span>
+  </div>
+
+  <div class="filter-tabs" id="filterTabs">
+    <button class="filter-tab active" onclick="filterBrowse('all', this)">الكل</button>
+    <button class="filter-tab" onclick="filterBrowse('love', this)">الحب ❤️</button>
+    <button class="filter-tab" onclick="filterBrowse('future', this)">المستقبل 🌙</button>
+    <button class="filter-tab" onclick="filterBrowse('fun', this)">مرح 😄</button>
+    <button class="filter-tab" onclick="filterBrowse('deep', this)">عميق 🌹</button>
+    <button class="filter-tab" onclick="filterBrowse('daily', this)">يومي ☀️</button>
+  </div>
+
+  <div class="q-list" id="qList"></div>
+
+  <button class="btn-secondary" onclick="goHome()" style="margin-top:16px;">← رجوع</button>
+</div>
+
+<!-- END SCREEN -->
+<div class="screen" id="endScreen">
+  <div class="confetti-emoji">🎉</div>
+  <div class="end-title">أنهيتم كل الأسئلة!</div>
+  <div class="end-subtitle">أنتم كوبل رائع! كملتم كل الأسئلة وعبرتم عن مشاعركم. استمروا في التواصل الجميل ده 💑</div>
+  <button class="btn-primary" onclick="startGame()">العب تاني 🔄</button>
+  <button class="btn-secondary" onclick="goHome()">الرئيسية</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// ALL 500+ QUESTIONS
+// ═══════════════════════════════════════════════════════════
+const allQuestions = [
+  // LOVE & RELATIONSHIP ❤️
+  {q:"إيه أول حاجة لفت نظرك فيا؟", cat:"love"},
+  {q:"إيه اللحظة اللي حسيت فيها إنك بتحبني فعلاً؟", cat:"love"},
+  {q:"إيه أكتر حاجة بتحبها فيا؟", cat:"love"},
+  {q:"إيه أكتر لحظة رومانسية بينا عشتها وما نسيتهاش؟", cat:"love"},
+  {q:"لو هتوصفني بكلمة واحدة، هتقول إيه؟", cat:"love"},
+  {q:"إيه أكتر حاجة بتعملها وبتخليني حاسس/ة بالأمان؟", cat:"love"},
+  {q:"فين أحلى مكان كنا فيه مع بعض؟", cat:"love"},
+  {q:"إيه أكتر جملة بتحب/ي تسمعها مني؟", cat:"love"},
+  {q:"إيه أكتر حاجة بتفتقدها لما مكنيش موجود/ة؟", cat:"love"},
+  {q:"إيه أكتر حاجة عملتها وحسيت إنها عبرت عن حبي ليك؟", cat:"love"},
+  {q:"لو هتكتب جملة تعبر عن علاقتنا، هتكتب إيه؟", cat:"love"},
+  {q:"إيه اللي بيخلي علاقتنا مميزة عن غيرها؟", cat:"love"},
+  {q:"إيه أكتر خناقة بينا حسيت بعدها إننا أقرب؟", cat:"love"},
+  {q:"إيه أكتر هدية استلمتها مني وفرحت بيها؟", cat:"love"},
+  {q:"لو محتاج/ة دعم دلوقتي، إيه اللي عايز/ة أعمله ليك؟", cat:"love"},
+  {q:"إيه أكتر طريقة بتحس بيها بحبي ليك؟", cat:"love"},
+  {q:"إيه اللي خلاك تثق فيا؟", cat:"love"},
+  {q:"لو كنت هتعمل مفاجأة ليا، هتعمل إيه؟", cat:"love"},
+  {q:"إيه أكتر حاجة بتتمنى إننا نعملها مع بعض؟", cat:"love"},
+  {q:"لو رجعنا للأول، هتعمل حاجة مختلفة؟", cat:"love"},
+  {q:"إيه أكتر صفة فيا بتجيب جوا ناجح/ة؟", cat:"love"},
+  {q:"إيه أكتر موقف وقفت فيه جنبي وما نسيتوش؟", cat:"love"},
+  {q:"بتحس إنك فاهم/ة أنا عامل/ة إزاي من غير ما أتكلم؟", cat:"love"},
+  {q:"إيه أكتر حاجة صعبة في الحب بالنسبالك؟", cat:"love"},
+  {q:"إيه اللي بتتعلمه مني كل يوم؟", cat:"love"},
+  {q:"لو مش قادر/ة تتكلم، إيه اللي هتحاول توصله ليا؟", cat:"love"},
+  {q:"إيه أكتر حاجة بتخليك حاسس/ة إن علاقتنا سليمة؟", cat:"love"},
+  {q:"إيه أهم حاجة بالنسبالك في أي علاقة؟", cat:"love"},
+  {q:"بتحب/ي نعبر عن حبنا قدام الناس ولا دا شيء بيننا؟", cat:"love"},
+  {q:"إيه أكتر حاجة ممكن تعملها عشاني من غير ما أطلب؟", cat:"love"},
+  {q:"إزاي بتعرف إن أنا زعلان/ة؟", cat:"love"},
+  {q:"إيه اللي بيفرق بيني وبين أي حد تاني في حياتك؟", cat:"love"},
+  {q:"لو حد سألك عني، هتقول إيه؟", cat:"love"},
+  {q:"إيه أكتر لحظة ضحكتنا فيها لحد ما دمعنا؟", cat:"love"},
+  {q:"إيه الحاجة اللي بتخليك تحب الكون ده أكتر؟", cat:"love"},
+  {q:"لو اتعرضنا لأصعب موقف في حياتنا، إيه اللي هتعمله؟", cat:"love"},
+  {q:"إيه أكتر حاجة ممكن تغفر فيا ومش ممكن تتعدى عليها؟", cat:"love"},
+  {q:"إيه أكتر حاجة بتمنيت تقولهالي وما قلتهاش؟", cat:"love"},
+  {q:"إيه اللي بيخليك فاكر/ة فيا لما مش موجود/ة؟", cat:"love"},
+  {q:"بتحس إن حبنا بيكبر مع الوقت ولا بيتثبت؟", cat:"love"},
+  {q:"إيه التحدي الأكبر اللي اتحديناه مع بعض وعدنا منه أقوى؟", cat:"love"},
+  {q:"لو عندي مشكلة وما قلتلكش، هتحس بيها؟ إزاي؟", cat:"love"},
+  {q:"إيه أكتر حاجة تعبتني مرة وكنت موجود/ة؟", cat:"love"},
+  {q:"إيه اللي بتتمنى إني أفهمه من غير ما أشرح؟", cat:"love"},
+  {q:"بتؤمن إن الحب كفاية وحده ولا لازم تاني حاجات؟", cat:"love"},
+  {q:"إيه أكتر حاجة بتجبلي إحساس إني محظوظ/ة بيك؟", cat:"love"},
+  {q:"إيه أكتر شيء بيخليك تبتسم وإنت بتفكر فيا؟", cat:"love"},
+  {q:"إيه أكتر صفة بتتمنى تطورها في نفسك عشاننا؟", cat:"love"},
+  {q:"لو الدنيا اتقلبت علينا، إيه اللي هيفضل ثابت بيننا؟", cat:"love"},
+  {q:"إيه اللي بتحبه في الطريقة اللي بتحبني بيها؟", cat:"love"},
+  {q:"إيه أكتر لحظة صمت بيننا كانت أجمل من أي كلام؟", cat:"love"},
+  {q:"إيه اللي لو حصل هيخلي علاقتنا أقوى؟", cat:"love"},
+  {q:"بتشوف نفسك فيا؟ في إيه؟", cat:"love"},
+  {q:"إيه أكتر حاجة تعلمتها من حبنا لبعض؟", cat:"love"},
+  {q:"لو الحب رسالة، هتكتبلي إيه؟", cat:"love"},
+  {q:"إيه أكتر حاجة ممكن تغيرها في طريقتك في التعبير عن حبك؟", cat:"love"},
+  {q:"إيه اللي بيخليك مستمر/ة في الحب ده رغم الصعوبات؟", cat:"love"},
+  {q:"لو حياتنا فيلم، هيبقى من نوع إيه؟", cat:"love"},
+  {q:"إيه أكتر جزء من يومك بتشاركني فيه؟", cat:"love"},
+  {q:"إيه الحاجة اللي لو مش موجودة في علاقتنا هتحس بنقص؟", cat:"love"},
+  {q:"إيه أكتر حاجة بتجيب جوا من الخارج لما بتيجي تلاقيني؟", cat:"love"},
+  {q:"إيه الفرق الكبير في حياتك من لما جيت فيها؟", cat:"love"},
+  {q:"إيه أكتر موقف فيه ضحكنا ع الموضوع بعدين بس في وقته كان صعب؟", cat:"love"},
+  {q:"إيه أكتر حاجة في شخصيتي بتفرحك؟", cat:"love"},
+  {q:"إيه اللي بيخليك تحس إن يومك كامل؟", cat:"love"},
+  {q:"إيه أكتر وقت في اليوم بتفكر فيا؟", cat:"love"},
+  {q:"لو عندك كلمة واحدة بس، إيه اللي هتقوله دلوقتي؟", cat:"love"},
+  {q:"إيه أكتر اتفاق صغير بيننا بيفرق كتير في حياتنا اليومية؟", cat:"love"},
+  {q:"إيه اللي بيخليك حاسس/ة إني قريب/ة منك حتى لما بعيد/ة؟", cat:"love"},
+  {q:"إيه أكتر وعد عملتهولي وافتخرت بنفسك إنك وفيت بيه؟", cat:"love"},
+  {q:"إيه اللي لو شفته فيا مرة تانية هيخليك تحبني أكتر؟", cat:"love"},
+  {q:"إيه أكتر تفصيلة صغيرة بتلاحظها فيا؟", cat:"love"},
+  {q:"إيه اللي بيخليك تاخد نفس لما بتبص في عنيا؟", cat:"love"},
+  {q:"إيه أكتر حاجة في صوتي بتهدئك؟", cat:"love"},
+  {q:"إيه أكتر لحظة هدوء شاركناها مع بعض؟", cat:"love"},
+  {q:"إيه اللي بيخلي الحب بيننا حقيقي مش بس كلام؟", cat:"love"},
+  {q:"إيه أكتر حاجة عملتها عشاننا وما قلتلكش؟", cat:"love"},
+  {q:"إيه اللي بتحبه في الطريقة اللي بتتكلم بيها معايا؟", cat:"love"},
+  {q:"إيه أكتر حاجة بتخوفك في علاقتنا؟", cat:"love"},
+  {q:"إيه اللي هتعمله عشان تخليني حاسس/ة بالأمان دايمًا؟", cat:"love"},
+  {q:"إيه أكتر كلمة قلتهالك وحسيت إنها وصلت فعلاً؟", cat:"love"},
+  {q:"إيه اللي بيخليك تتحمل فيا حاجة مش بتحبها؟", cat:"love"},
+  {q:"إيه أكتر وقت زعلت منه وكانت عندك حق؟", cat:"love"},
+  {q:"إيه أكتر حاجة بتتمنى إن الناس تعرفها عننا؟", cat:"love"},
+  {q:"إيه اللي بيخليك تقول 'أنا بخير' وإنت مش بخير؟", cat:"love"},
+  {q:"إيه أكتر حاجة بتمنيت تقضيها مع بعض؟", cat:"love"},
+  {q:"إيه اللي لو اتغير في حياتنا هتتمسك بيه أكتر؟", cat:"love"},
+  {q:"إيه أكتر تصرف مني خلاك فخور/ة بيا؟", cat:"love"},
+  {q:"إيه أكتر حاجة ممكن تعملها كل يوم عشاننا؟", cat:"love"},
+  {q:"إيه اللي بتحبه في الطريقة اللي بنحل بيها مشاكلنا؟", cat:"love"},
+  {q:"إيه أكتر شيء في شخصيتي محتاج/ة تتقبله أكتر؟", cat:"love"},
+  {q:"إيه اللي بيخليك تشوف المستقبل وإنت مرتاح/ة؟", cat:"love"},
+  {q:"إيه أكتر لحظة عيط فيها من الفرح في حياتنا؟", cat:"love"},
+  {q:"إيه الحاجة اللي بتقدمها ليا من غير ما تحسب؟", cat:"love"},
+  {q:"إيه أكتر حاجة في طريقة حياتي بتلهمك؟", cat:"love"},
+  {q:"إيه اللي بيخلي الصمت بيننا مريح مش محرج؟", cat:"love"},
+  {q:"إيه أكتر اختيار عملته وكان فيه إني اختار علاقتنا؟", cat:"love"},
+  {q:"إيه الحاجة اللي بتقولهالي بعنيك من غير كلام؟", cat:"love"},
+  {q:"إيه أكتر لحظة حسيت إن اللي بيننا أكبر منا الاتنين؟", cat:"love"},
+  {q:"إيه اللي بيخليك مكمل/ة في الأيام الصعبة؟", cat:"love"},
+
+  // FUTURE & DREAMS 🌙
+  {q:"إيه أكبر حلم بتتمنى تحققه في حياتك؟", cat:"future"},
+  {q:"إيه المكان اللي بتتمنى تسافر إليه مع بعض؟", cat:"future"},
+  {q:"شايف/ة إيه في حياتنا بعد 5 سنين؟", cat:"future"},
+  {q:"إيه أكتر هدف بتسعى تحققه دلوقتي؟", cat:"future"},
+  {q:"إيه الحياة المثالية اللي بتتخيلها لنا مع بعض؟", cat:"future"},
+  {q:"لو قدرت تغير حاجة واحدة في مستقبلنا، هتغير إيه؟", cat:"future"},
+  {q:"إيه الأشياء اللي مش هتتنازل عنها في حياتك حتى لو الظروف اتغيرت؟", cat:"future"},
+  {q:"إيه اللي بتتمنى تعمله قبل ما تكبر؟", cat:"future"},
+  {q:"لو قدرت تعيش في أي مكان في العالم، هتختار فين؟", cat:"future"},
+  {q:"إيه أكتر حاجة بتحلم بيها وبتعمل عليها؟", cat:"future"},
+  {q:"إيه اللي بتتخيله في يوم تقاعدنا مع بعض؟", cat:"future"},
+  {q:"إيه الحاجة اللي لو حققتها هتحس إن حياتك كاملة؟", cat:"future"},
+  {q:"إيه اللي بتريد تورثه للأجيال الجاية؟", cat:"future"},
+  {q:"إيه أكتر مغامرة بتتمنى تعيشها مع بعض؟", cat:"future"},
+  {q:"إيه حلمك اللي كنت خايف تقوله لحد؟", cat:"future"},
+  {q:"إيه اللي هيكون أصعب قرار بتاخده في المستقبل؟", cat:"future"},
+  {q:"إيه اللي هتعمله لو عرفت إن عندك سنة بس تعيشها؟", cat:"future"},
+  {q:"إيه أكتر تجربة بتتمنى تعيشها في حياتك؟", cat:"future"},
+  {q:"إيه الإرث اللي بتريد تسيبه بعدك؟", cat:"future"},
+  {q:"إيه الحاجة اللي بتمنيت إنها كانت مختلفة في ماضيك؟", cat:"future"},
+  {q:"إيه اللي بتخطط تعمله في إجازتنا الجاية؟", cat:"future"},
+  {q:"إيه أكتر مهارة بتتمنى تتعلمها مع بعض؟", cat:"future"},
+  {q:"لو أنشأنا مشروع مع بعض، هيكون في إيه؟", cat:"future"},
+  {q:"إيه اللي بتتمنى إن أولادنا يتعلموه منا؟", cat:"future"},
+  {q:"إيه التقليد اللي بتتمنى نعمله كل سنة؟", cat:"future"},
+  {q:"إيه الحلم اللي بتخطط له بس ما قلتوش لحد؟", cat:"future"},
+  {q:"إيه اللي هيجعل حياتنا أجمل في السنة الجاية؟", cat:"future"},
+  {q:"إيه أكتر شيء بتريد تتغير فيه؟", cat:"future"},
+  {q:"إيه اللي بتتمنى إن الناس تقوله فينا بعد 20 سنة؟", cat:"future"},
+  {q:"إيه الحاجة اللي لو حصلت هتحس إن الدنيا بخير؟", cat:"future"},
+  {q:"إيه أكتر هوية مشتركة عندنا وبنفتخر بيها؟", cat:"future"},
+  {q:"إيه الخطة اللي بتفكر فيها للـ 10 سنين الجايين؟", cat:"future"},
+  {q:"إيه الحاجة اللي بتتمنى تقولها لنفسك من 10 سنين؟", cat:"future"},
+  {q:"إيه الروتين اليومي اللي بتتمنى يبقى موجود في مستقبلنا؟", cat:"future"},
+  {q:"إيه اللي بتتمنى تعمله مع بعض في الشتا؟", cat:"future"},
+  {q:"إيه الحاجة اللي لو بدأتها دلوقتي هتغير حياتنا؟", cat:"future"},
+  {q:"إيه أكتر شيء بتخطط تتعلمه السنة دي؟", cat:"future"},
+  {q:"إيه البلد اللي بتحلم تعيش فيها؟", cat:"future"},
+  {q:"إيه الخطوة الجاية في حياتنا اللي بتفرحك؟", cat:"future"},
+  {q:"إيه الحلم اللي هتبدأ تمشي فيه دلوقتي لو مكنش فيه خوف؟", cat:"future"},
+  {q:"إيه اللي بتتمنى تحققه بحلول نهاية السنة دي؟", cat:"future"},
+  {q:"إيه أكتر شيء هتغيره في نمط حياتك عشان مستقبل أحسن؟", cat:"future"},
+  {q:"إيه البيت اللي بتحلم تعيش فيه مع بعض؟", cat:"future"},
+  {q:"إيه اللي هيكون أجمل شيء في حياتنا لما نكبر؟", cat:"future"},
+  {q:"إيه أكتر تجربة بتتمنى إن أولادنا يعيشوها؟", cat:"future"},
+  {q:"إيه اللي بتشتاق إليه في مستقبل حياتنا المشتركة؟", cat:"future"},
+  {q:"إيه الشغل اللي لو عملته هيخليك أكتر سعادة؟", cat:"future"},
+  {q:"إيه الحلم اللي مش هتوقف عنه حتى لو الكل قالك مستحيل؟", cat:"future"},
+  {q:"إيه اللي بتتمنى إننا نختلف فيه دايمًا؟", cat:"future"},
+  {q:"إيه أكتر مبادرة تجاه الأسرة بتتمنى تعملها؟", cat:"future"},
+  {q:"إيه التغيير الإيجابي اللي شفته في نفسك بسبب علاقتنا؟", cat:"future"},
+  {q:"إيه اللي بتخطط تعمله عشان تحسن علاقتنا؟", cat:"future"},
+  {q:"إيه الحاجة اللي لو مش موجودة في مستقبلنا هتتأثر؟", cat:"future"},
+  {q:"إيه أكتر شيء عايز/ة تتعلمه من بعضنا في السنة الجاية؟", cat:"future"},
+  {q:"إيه أكتر اختيار في مستقبلنا بتخاف منه؟", cat:"future"},
+  {q:"إيه اللي هيكون أول حاجة تعملها لو فجأة قدرتم تسافروا؟", cat:"future"},
+  {q:"إيه الصفة اللي بتتمنى تكبر فيها مع الأيام؟", cat:"future"},
+  {q:"إيه أكتر وصف لحياة تعيشوها مع بعض وهتبقوا فيها سعيدين؟", cat:"future"},
+  {q:"إيه اللي لو تحقق هيكون أكبر إنجاز في حياتكم مع بعض؟", cat:"future"},
+  {q:"إيه الحاجة اللي بتتمنى تفعلها في عيد ميلادك الجاي؟", cat:"future"},
+  {q:"إيه اللي بتحلم به ليالي وإنت بتنام؟", cat:"future"},
+  {q:"إيه الحاجة اللي بتتمنى تقدمها للمجتمع في يوم من الأيام؟", cat:"future"},
+  {q:"إيه أكتر اتفاق مستقبلي بتتمنى نتفق عليه؟", cat:"future"},
+  {q:"إيه اللي هتعمله لما تحقق هدفك الأكبر؟", cat:"future"},
+  {q:"إيه أكتر قيمة بتريد تبني عليها بيتكم؟", cat:"future"},
+  {q:"إيه الحاجة اللي بتتمنى إن الأيام الجاية تجيبها؟", cat:"future"},
+  {q:"إيه أكتر حاجة بتريد تكون موجودة في يومياتنا الجاية؟", cat:"future"},
+  {q:"إيه اللي بتتمنى يبقى مختلف في حياتنا بعد 3 سنين؟", cat:"future"},
+  {q:"إيه الحاجة اللي لما تيجي هتقول 'أخيرًا'؟", cat:"future"},
+  {q:"إيه أكتر تجربة سفر بتحلم بيها مع بعض؟", cat:"future"},
+  {q:"إيه اللي بتريد تعمله في يوم جوازكم؟", cat:"future"},
+  {q:"إيه الهدية المثالية اللي ممكن تقدمها للمستقبل؟", cat:"future"},
+  {q:"إيه أكتر شيء بيخليك متفائل/ة في المستقبل؟", cat:"future"},
+  {q:"إيه اللي بتتمنى يصحى معاك كل يوم في مستقبلك؟", cat:"future"},
+  {q:"إيه الحاجة اللي لو عملتها هتحس إنك حققت شيء حقيقي؟", cat:"future"},
+  {q:"إيه أكتر تحدي بتريد تتحداه مع بعض في المستقبل؟", cat:"future"},
+  {q:"إيه الحلم اللي كل ما بتفكر فيه بتحس بطاقة مختلفة؟", cat:"future"},
+  {q:"إيه أكتر مكان في الدنيا بتريد تزوره قبل ما تكمل؟", cat:"future"},
+  {q:"إيه الروتين اللي بتريد يكون جزء من يومياتنا؟", cat:"future"},
+
+  // FUN & LAUGHTER 😄
+  {q:"لو إنت فيلم، هتبقى فيلم إيه؟", cat:"fun"},
+  {q:"إيه أغرب حاجة عملتها في حياتك؟", cat:"fun"},
+  {q:"لو عندك قدرة خارقة لمدة يوم، هتختار إيه؟", cat:"fun"},
+  {q:"إيه أضحك موقف حصلك في حياتك؟", cat:"fun"},
+  {q:"لو اتحولت لحيوان، هتبقى إيه؟ وليه؟", cat:"fun"},
+  {q:"إيه أكتر عادة غريبة عندك ما بتقولهاش لحد؟", cat:"fun"},
+  {q:"لو فزت بـ مليون جنيه دلوقتي، أول 3 حاجات هتعملها إيه؟", cat:"fun"},
+  {q:"إيه الحاجة اللي لو شفتها هتجري من غير ما تفكر؟", cat:"fun"},
+  {q:"لو بعتلك رسالة من المستقبل، هتكتب فيها إيه؟", cat:"fun"},
+  {q:"إيه أكتر فيلم أو مسلسل ممكن تتفرج عليه مليون مرة؟", cat:"fun"},
+  {q:"لو أنت كوميديان، إيه أول نكتة هتقولها؟", cat:"fun"},
+  {q:"إيه أكتر وقت إبتسمت فيه لنفسك من غير سبب واضح؟", cat:"fun"},
+  {q:"لو قدرت تتكلم لغة حيوانات، هتتكلم مع مين؟", cat:"fun"},
+  {q:"إيه أكتر طبخة بتاكلها لو حزين/ة؟", cat:"fun"},
+  {q:"لو بتعزم حد مشهور على العشا، هتعزم مين؟", cat:"fun"},
+  {q:"إيه أغرب حلم حلمته وصحيت مش عارف/ة تفسره؟", cat:"fun"},
+  {q:"لو الحياة لعبة فيديو، إيه المرحلة اللي إنت فيها دلوقتي؟", cat:"fun"},
+  {q:"إيه أكتر أكلة بتتمنى متوجدش على الأرض؟", cat:"fun"},
+  {q:"لو عندك وقت فراغ كامل لأسبوع، هتعمل إيه؟", cat:"fun"},
+  {q:"إيه أكتر برنامج أو بودكاست مش بتفوته؟", cat:"fun"},
+  {q:"لو هتحطلي علامة على جبهتي تعبر عني، هتحطي إيه؟", cat:"fun"},
+  {q:"إيه الحاجة اللي لما بتعملها بتحس إنك طفل/ة تاني؟", cat:"fun"},
+  {q:"لو إنت كتاب، هتبقى من نوع إيه؟", cat:"fun"},
+  {q:"إيه أحلى وقت في اليوم بالنسبالك؟ وليه؟", cat:"fun"},
+  {q:"لو أنت شيف لليلة واحدة، هتطبخ إيه؟", cat:"fun"},
+  {q:"إيه أغرب تجربة أكل جربتها؟", cat:"fun"},
+  {q:"لو قدرت تعيش في أي زمن تاني، هتختار امتى؟", cat:"fun"},
+  {q:"إيه أكتر أغنية بتغنيها لوحدك وإنت في الدش؟", cat:"fun"},
+  {q:"لو إنت منتج مسلسل، هيكون عن إيه؟", cat:"fun"},
+  {q:"إيه أكتر طرفة قديمة بتتذكرها من طفولتك؟", cat:"fun"},
+  {q:"لو إنت معلم/ة لليلة واحدة، هتشرح إيه؟", cat:"fun"},
+  {q:"إيه أكتر تطبيق ممكن متوجدش في موبايلك؟", cat:"fun"},
+  {q:"لو عندك أسبوع كامل من غير أي مسؤوليات، هتعمل إيه؟", cat:"fun"},
+  {q:"إيه الحاجة اللي بتعملها لما متقدرش تنام؟", cat:"fun"},
+  {q:"لو إنت موبايل، هتبقى إمتى شحنك؟", cat:"fun"},
+  {q:"إيه أكتر نشاط بيجيبلك سعادة حتى لو كبرت؟", cat:"fun"},
+  {q:"لو قدرت تتبادل يوم مع أي شخص في الدنيا، هتختار مين؟", cat:"fun"},
+  {q:"إيه أكتر لحظة ضحكت فيها لدرجة ما قدرتش تتنفس؟", cat:"fun"},
+  {q:"لو هتكون بطل/ة فيلم، هتبقى في إيه نوع؟", cat:"fun"},
+  {q:"إيه الحاجة اللي لما بتشتريها بتحس إنك كسبت الدنيا؟", cat:"fun"},
+  {q:"لو قدرت تطير ليلة واحدة، هتروح فين؟", cat:"fun"},
+  {q:"إيه أحلى اختراع في الدنيا بالنسبالك؟", cat:"fun"},
+  {q:"لو إنت روبوت، هتبقى متخصص في إيه؟", cat:"fun"},
+  {q:"إيه أكتر حاجة بتضحكك حتى من غير سبب؟", cat:"fun"},
+  {q:"لو لازم تأكل أكلة واحدة للباقي، هتختار إيه؟", cat:"fun"},
+  {q:"إيه الموهبة اللي بتتمنى تبقى عندك؟", cat:"fun"},
+  {q:"لو هتحيي حفلة موسيقية، هتختار مين يغني؟", cat:"fun"},
+  {q:"إيه أكتر لعبة طفولة كنت بتتميز فيها؟", cat:"fun"},
+  {q:"لو هتختفي لأسبوع من غير موبايل، هتعمل إيه؟", cat:"fun"},
+  {q:"إيه الحاجة اللي لو باعتها بتحسبها لحساب الـ وقفة؟", cat:"fun"},
+  {q:"لو قدرت تتكلم لغة واحدة زيادة، هتختار إيه؟", cat:"fun"},
+  {q:"إيه أكتر حدث تاريخي بتتمنى كنت موجود/ة فيه؟", cat:"fun"},
+  {q:"لو إنت ملك/ة ليوم واحد، أول قرار هتاخده إيه؟", cat:"fun"},
+  {q:"إيه الحاجة اللي بتعملها وبتضحك لما بتفكر فيها بعدين؟", cat:"fun"},
+  {q:"لو هتبيع حاجة من بيتك، هتبدأ بإيه؟", cat:"fun"},
+  {q:"إيه أكتر عادة في شخصيتي بتضحكك؟", cat:"fun"},
+  {q:"لو إنت بائع/ة ولا مشتري/ة؟ وليه؟", cat:"fun"},
+  {q:"إيه الحاجة اللي لو حصلت اليوم هتعتبرها يوم مثالي؟", cat:"fun"},
+  {q:"لو عندك قدرة تمسح ذكرى واحدة، هتختار إيه؟", cat:"fun"},
+  {q:"إيه أكتر حاجة مش بتعترف بيها أمام أصحابك؟", cat:"fun"},
+  {q:"لو إنت مقدم/ة برنامج، هيكون برنامج إيه؟", cat:"fun"},
+  {q:"إيه أكتر عبارة بتقولها لنفسك في المرايا؟", cat:"fun"},
+  {q:"لو لازم تتنازل عن حاجة واحدة من حياتك، هتختار إيه؟", cat:"fun"},
+  {q:"إيه أكتر حلم غريب بتتكرر معاك؟", cat:"fun"},
+  {q:"لو إنت بطل/ة كوميكس، هتبقى مين؟", cat:"fun"},
+  {q:"إيه الحاجة اللي بتبقى فيها أطفالية تمامًا؟", cat:"fun"},
+  {q:"لو عندك يوم من غير إنترنت، هتعمل إيه؟", cat:"fun"},
+  {q:"إيه أكتر حاجة بتعملها بتجيب إحساس الحرية؟", cat:"fun"},
+  {q:"لو هتختفي لأسبوع، إيه أول حاجة هتعملها لما ترجع؟", cat:"fun"},
+  {q:"إيه أكتر فيلم بكيت فيه وبعدين اتشيلت عليه؟", cat:"fun"},
+  {q:"لو هتعيش في أي عصر تاريخي، هتختار إيه؟", cat:"fun"},
+  {q:"إيه الحاجة اللي ممكن تتأخر عنها دايمًا؟", cat:"fun"},
+  {q:"لو عندك يوم مجاني تماماً، هتبدأه بإيه؟", cat:"fun"},
+  {q:"إيه أكتر أغنية بتجيب إحساس الفرح حتى لو كنت زهقان/ة؟", cat:"fun"},
+  {q:"لو هتكون شيء في الطبيعة، هتبقى إيه؟", cat:"fun"},
+  {q:"إيه أكتر مشهد في فيلم بتتذكره بابتسامة؟", cat:"fun"},
+  {q:"لو إنت مصمم/ة قميص عن شخصيتك، هيبقى فيه إيه؟", cat:"fun"},
+  {q:"إيه الحاجة اللي دايمًا بتخطط تعملها ومش بتعملها؟", cat:"fun"},
+  {q:"لو قدرت تبدأ يومك بنشاط واحد بس، هتختار إيه؟", cat:"fun"},
+
+  // DEEP QUESTIONS 🌹
+  {q:"إيه المعنى اللي بتلاقيه في حياتك؟", cat:"deep"},
+  {q:"إيه أكتر خوف عندك وبتتعامل معاه إزاي؟", cat:"deep"},
+  {q:"إيه اللي بيعرفك كإنسان؟", cat:"deep"},
+  {q:"لو عندك نصيحة واحدة للنسخة الأصغر منك، هتقولها إيه؟", cat:"deep"},
+  {q:"إيه أكتر قرار في حياتك غير مجراها تمامًا؟", cat:"deep"},
+  {q:"إيه اللي بيجيبك إحساس إن الحياة تستاهل؟", cat:"deep"},
+  {q:"إيه أكتر موقف اتعلمت منه درس ما نسيتوش؟", cat:"deep"},
+  {q:"إيه الحاجة اللي بتتمنى الناس تفهمها فيك أكتر؟", cat:"deep"},
+  {q:"إيه أكتر خطأ في حياتك اعتبرته بعدين نعمة؟", cat:"deep"},
+  {q:"إيه معنى النجاح بالنسبالك؟", cat:"deep"},
+  {q:"إيه اللي بتخاف إنك مش هتحققه في حياتك؟", cat:"deep"},
+  {q:"إيه أكتر شيء بيشعرك بالامتنان؟", cat:"deep"},
+  {q:"إيه الشيء اللي لو فقدته هتحس إنك فقدت جزء من نفسك؟", cat:"deep"},
+  {q:"إيه الدرس الأصعب اللي علمتك إياه الحياة؟", cat:"deep"},
+  {q:"إيه الشيء اللي بتخجل منه وبتعرف إنك لازم تشتغل عليه؟", cat:"deep"},
+  {q:"إيه الوقت اللي حسيت فيه إنك أقوى من اللي كنت شايفه في نفسك؟", cat:"deep"},
+  {q:"إيه أكتر سؤال بتفكر فيه لوحدك ومش بتسأله لحد؟", cat:"deep"},
+  {q:"إيه الحاجة اللي بتحس إنك لسه بتتعلمها رغم كل اللي عشته؟", cat:"deep"},
+  {q:"إيه اللي بيقف وراء أكتر قراراتك في الحياة؟", cat:"deep"},
+  {q:"إيه الشيء اللي مهما حصل مش هتتنازل عنه؟", cat:"deep"},
+  {q:"لو قدرت تغير حاجة في الطريقة اللي تربيت بيها، هتغير إيه؟", cat:"deep"},
+  {q:"إيه الحاجة اللي بتجيبك قوة من جوا في أصعب اللحظات؟", cat:"deep"},
+  {q:"إيه اللي بتشوفه في المرايا وبتقوله؟", cat:"deep"},
+  {q:"إيه أكتر شيء في نفسك بتفخر بيه وما بتقولهوش لحد؟", cat:"deep"},
+  {q:"إيه اللي بيجعل شخصًا ما صادقًا بالنسبالك؟", cat:"deep"},
+  {q:"إيه الحاجة اللي بتعمل سعادة حقيقية مش وقتية؟", cat:"deep"},
+  {q:"إيه اللي بتفضل تقوله لنفسك لما بتكون في أصعب أوقاتك؟", cat:"deep"},
+  {q:"إيه الشيء اللي لو حد قاله ليك هيغير حياتك؟", cat:"deep"},
+  {q:"إيه اللي ما بتسامح فيه نفسك وكان لازم تسامح؟", cat:"deep"},
+  {q:"إيه أكتر قيمة إنسانية بتؤمن بيها وبتحاول تعيش بيها؟", cat:"deep"},
+  {q:"إيه الحاجة اللي بتعرفك تفرق بين الخوف الحقيقي والوهمي؟", cat:"deep"},
+  {q:"إيه اللي بيحصل جوا لما بتكون هادي تمامًا لوحدك؟", cat:"deep"},
+  {q:"إيه أكتر شيء بيصعب عليك تقبله في العالم؟", cat:"deep"},
+  {q:"إيه الحاجة اللي بتتعلمها كل يوم من الحياة؟", cat:"deep"},
+  {q:"إيه أكتر لحظة حسيت فيها إنك تغيرت تمامًا؟", cat:"deep"},
+  {q:"إيه الشيء اللي لما بتعمله بتحس إنك في مكانك الصح؟", cat:"deep"},
+  {q:"إيه اللي بيخليك تصحى كل يوم وتكمل؟", cat:"deep"},
+  {q:"إيه أكتر شيء بتحسده في الناس التانيين؟", cat:"deep"},
+  {q:"إيه اللي بتتمنى تقوله لنفسك بكرة؟", cat:"deep"},
+  {q:"إيه اللي بيفرق بين الشجاعة الحقيقية والتهور؟", cat:"deep"},
+  {q:"إيه الحاجة اللي ما عرفتش تشرحها لحد بس بتحسها؟", cat:"deep"},
+  {q:"إيه اللي لما بيحصل بتحس إن الحياة عادلة؟", cat:"deep"},
+  {q:"إيه أكتر شيء بيعلمك التواضع؟", cat:"deep"},
+  {q:"إيه الحاجة اللي لما بتعملها بتحس إنك عملت اللي المفروض تعمله؟", cat:"deep"},
+  {q:"إيه الشيء اللي لو ما تعلمتوش هتبقى شخص مختلف تمامًا؟", cat:"deep"},
+  {q:"إيه أكتر لحظة إحنا الاتنين حسينا فيها بشيء أكبر منا؟", cat:"deep"},
+  {q:"إيه الحاجة اللي لو ما عملتهاش بتندم؟", cat:"deep"},
+  {q:"إيه اللي بيجيبلك إحساس إن الدنيا دي محتاجالك؟", cat:"deep"},
+  {q:"إيه أكتر خطر خاطرته في حياتك وكنت صح؟", cat:"deep"},
+  {q:"إيه اللي بيجيبلك إحساس إنك مش لوحدك في الكون؟", cat:"deep"},
+  {q:"إيه الحاجة اللي لما بتعملها بتحس إن روحك ارتاحت؟", cat:"deep"},
+  {q:"إيه أكتر شيء بتتعلمه من الأشخاص اللي بيدوك دروس في الحياة؟", cat:"deep"},
+  {q:"إيه الحاجة اللي بتتمنى كل الناس تعيش تجربتها مرة واحدة بس؟", cat:"deep"},
+  {q:"إيه اللي بيخليك تؤمن بالحب حتى لما الظروف صعبة؟", cat:"deep"},
+  {q:"إيه أكتر لحظة حسيت فيها إن الدنيا أجمل مما كنت شايف؟", cat:"deep"},
+  {q:"إيه الشيء اللي بتعمله ويبقى معاك لفترة طويلة جوا؟", cat:"deep"},
+  {q:"إيه اللي بيجعل حياة إنسان ذات قيمة؟", cat:"deep"},
+  {q:"إيه أكتر سؤال في الحياة لسه مجاوبتش عليه؟", cat:"deep"},
+  {q:"إيه الحاجة اللي بتعملها عشان تفهم نفسك أحسن؟", cat:"deep"},
+  {q:"إيه اللي بتحبه في الطريقة اللي بتتعامل بيها مع الألم؟", cat:"deep"},
+  {q:"إيه أكتر شيء بيجيبلك إحساس الاكتمال؟", cat:"deep"},
+  {q:"إيه الحاجة اللي لما بتحسها بتعرف إنك بتنمو؟", cat:"deep"},
+  {q:"إيه اللي بيعلمك الحياة كل سنة تزيد؟", cat:"deep"},
+  {q:"إيه أكتر شيء في العلاقات الإنسانية بيبهرك؟", cat:"deep"},
+  {q:"إيه اللي بيخليك تستمر في وقت ما بتشوفش أمل؟", cat:"deep"},
+  {q:"إيه الحاجة اللي لو فهمتها أكتر هتكون أحسن؟", cat:"deep"},
+  {q:"إيه أكتر شيء اتعلمته من ألمك؟", cat:"deep"},
+  {q:"إيه الحاجة اللي بتقدمها للدنيا من غير ما تطلب حاجة في المقابل؟", cat:"deep"},
+  {q:"إيه اللي بيجيبلك إحساس إن حياتك ليها معنى؟", cat:"deep"},
+  {q:"إيه أكتر صفة إنسانية بتتمنى تنميها في نفسك؟", cat:"deep"},
+  {q:"إيه الحاجة اللي لما بتشوفها في الناس بتحس بالأمل في البشرية؟", cat:"deep"},
+  {q:"إيه اللي بيخليك تسامح وإنت مش عارف/ة تنسى؟", cat:"deep"},
+  {q:"إيه أكتر لحظة غيرت طريقة تفكيرك في الحياة؟", cat:"deep"},
+  {q:"إيه الحاجة اللي لو فقدتها هتتعلم تقدرها بعد ما تفقدها؟", cat:"deep"},
+  {q:"إيه أكتر شيء في الكون بيخليك تعرف إن فيه حاجة أكبر منا؟", cat:"deep"},
+
+  // DAILY LIFE ☀️
+  {q:"إيه أول حاجة بتعملها لما تصحى الصبح؟", cat:"daily"},
+  {q:"إيه روتين الصبح المثالي بالنسبالك؟", cat:"daily"},
+  {q:"إيه الأكلة اللي ما تعبتش منها؟", cat:"daily"},
+  {q:"بتنام بدري ولا بتسهر؟ وليه؟", cat:"daily"},
+  {q:"إيه أكتر وقت بتكون فيه أنشط في اليوم؟", cat:"daily"},
+  {q:"إيه اللي بيحطط مزاجك في الصبح؟", cat:"daily"},
+  {q:"بتحب تشتغل من البيت ولا من بره؟", cat:"daily"},
+  {q:"إيه أكتر حاجة في يومك ما تقدرش تعيش بدونها؟", cat:"daily"},
+  {q:"إيه الروتين اللي لو بطلته هتحس بفرق كبير؟", cat:"daily"},
+  {q:"إيه أكتر نشاط بتعمله عشان تريح دماغك؟", cat:"daily"},
+  {q:"بتفضل القهوة ولا الشاي؟ وإمتى؟", cat:"daily"},
+  {q:"إيه اللي بتستمع إليه وإنت بتمشي أو بتتنقل؟", cat:"daily"},
+  {q:"إيه أكتر عادة يومية بتخليك في مود أحسن؟", cat:"daily"},
+  {q:"بتحب تقضي وقت فراغك إزاي؟", cat:"daily"},
+  {q:"إيه اللي بتعمله لما بتحس بالتعب والإرهاق؟", cat:"daily"},
+  {q:"إيه أكتر تطبيق بتستخدمه كل يوم؟", cat:"daily"},
+  {q:"بتحب الضوضاء ولا الهدوء وإنت بتشتغل؟", cat:"daily"},
+  {q:"إيه أكتر حاجة بتزعجك في اليوم اليومي؟", cat:"daily"},
+  {q:"إيه اللي بتعمله عشان تحفز نفسك لما مش عندك نفس؟", cat:"daily"},
+  {q:"إيه أكتر نشاط رياضي بتمارسه ولو بشكل بسيط؟", cat:"daily"},
+  {q:"إيه اللي بتعمله في وقت الانتظار؟", cat:"daily"},
+  {q:"بتحب تتأخر ولا بتجي على المعاد؟", cat:"daily"},
+  {q:"إيه أكتر حاجة في يومك بتدي النشاط؟", cat:"daily"},
+  {q:"إيه الكتاب أو الفيديو اللي شغال فيه دلوقتي؟", cat:"daily"},
+  {q:"بتنضم غرضك ولا ساكن في الفوضى؟", cat:"daily"},
+  {q:"إيه أكتر حاجة بتعملها لوحدك بتفرح بيها؟", cat:"daily"},
+  {q:"إيه اللي بتعمله عشان تفصل بين الشغل والراحة؟", cat:"daily"},
+  {q:"إيه أكتر حاجة في البيت بتبقى فيها مبسوط/ة؟", cat:"daily"},
+  {q:"إيه آخر حاجة تعلمتها من بره حاجة تقليدية؟", cat:"daily"},
+  {q:"بتحب الأكل الصحي ولا بتاكل اللي تحبه بس؟", cat:"daily"},
+  {q:"إيه أكتر فيلم أو مسلسل شايله دلوقتي؟", cat:"daily"},
+  {q:"إيه الشيء اللي بتعمله في ليالي الجمعة عادةً؟", cat:"daily"},
+  {q:"بتحب تسوق بنفسك ولا أونلاين؟", cat:"daily"},
+  {q:"إيه أكتر حاجة ناقصة في روتينك وبتحاول تضيفها؟", cat:"daily"},
+  {q:"إيه اللي بيخليك تنام مبسوط/ة آخر الليل؟", cat:"daily"},
+  {q:"بتفضل البيت ولا البره؟ وإمتى بالضبط؟", cat:"daily"},
+  {q:"إيه أكتر حاجة بتعملها لما بتيجي من بره تعبان/ة؟", cat:"daily"},
+  {q:"إيه الروتين اللي بتعمله قبل النوم؟", cat:"daily"},
+  {q:"بتحب تقضي العطلة مع أهل ولا صحاب ولا لوحدك؟", cat:"daily"},
+  {q:"إيه أكتر وجبة بتحبها كل أسبوع؟", cat:"daily"},
+  {q:"إيه الحاجة اللي بتتعلمها من يومياتك وإنت مش واخدها بالك؟", cat:"daily"},
+  {q:"بتحب تتكلم بالتليفون ولا المراسلة؟", cat:"daily"},
+  {q:"إيه أكتر ديكور أو جزء في البيت بتحبه؟", cat:"daily"},
+  {q:"إيه اللي بيجيبلك إحساس إن اليوم كان ناجح؟", cat:"daily"},
+  {q:"إيه أكتر تفصيلة في اليوم بتجيبلك فرح؟", cat:"daily"},
+  {q:"بتحب تقضي وقت بالموبايل ولا غيره؟", cat:"daily"},
+  {q:"إيه الحاجة اللي لو عملتها كل يوم هتحسن حياتك؟", cat:"daily"},
+  {q:"إيه أكتر وجبة فطار مثالية بالنسبالك؟", cat:"daily"},
+  {q:"بتحب تدرس بالليل ولا الصبح؟", cat:"daily"},
+  {q:"إيه اللي بتعمله لما يكون الجو تعبان؟", cat:"daily"},
+  {q:"إيه أكتر عادة صغيرة في يومك بتفرق معاك فرق كبير؟", cat:"daily"},
+  {q:"بتحب تتكلم عن يومك مع حد ولا بتفضل تفكر لوحدك؟", cat:"daily"},
+  {q:"إيه اللي بتعمله عشان تبدأ يوم جديد من غير ما تاخد معاك ضغط الأمس؟", cat:"daily"},
+  {q:"إيه الموسيقى اللي بتشتغلها في البيت؟", cat:"daily"},
+  {q:"بتحب الخروج في الصبح الباكر ولا العشية؟", cat:"daily"},
+  {q:"إيه أكتر مكان في المنطقة اللي بتحب تروح تاخد نفس فيه؟", cat:"daily"},
+  {q:"إيه اللي بيجيبلك راحة حقيقية بعد يوم شقي؟", cat:"daily"},
+  {q:"بتحب الروتين ولا التغيير؟ وليه؟", cat:"daily"},
+  {q:"إيه أكتر عادة عملتها في آخر شهر وحسيت بفرق؟", cat:"daily"},
+  {q:"إيه الوقت اللي بتقضيه مع نفسك وبتحبه؟", cat:"daily"},
+  {q:"إيه أكتر مشروب بيجيبلك إحساس الدفا في الشتا؟", cat:"daily"},
+  {q:"إيه الحاجة اللي بتعملها لو عندك ساعة كاملة لوحدك؟", cat:"daily"},
+  {q:"إيه اللي بتشتريه أول ما تدخل السوبر ماركت عادةً؟", cat:"daily"},
+  {q:"بتحب ترتب وإنت بتسمع حاجة ولا في صمت؟", cat:"daily"},
+  {q:"إيه الحاجة اللي بتخليك تضحك حتى في أصعب الأيام؟", cat:"daily"},
+  {q:"إيه اللي بتتمنى تضيفه لروتينك اليومي؟", cat:"daily"},
+  {q:"إيه أكتر حاجة في اليوم بتحس إنك عملتها وكانت تستاهل؟", cat:"daily"},
+  {q:"بتحب تقرأ قبل النوم ولا تشوف؟", cat:"daily"},
+  {q:"إيه الحاجة اللي لما بتعملها بتحس إن يومك اكتمل؟", cat:"daily"},
+  {q:"إيه أكتر نشاط في اليوم بيجيبلك طاقة إيجابية؟", cat:"daily"},
+  {q:"إيه اللي بيفرق بين يوم مبسوط/ة ويوم مش بخير عندك؟", cat:"daily"},
+  {q:"إيه أكتر حاجة بتعملها من غير ما تخطط ليها؟", cat:"daily"},
+  {q:"إيه اللي لو عملته دلوقتي هتحس إنك استغليت اليوم كويس؟", cat:"daily"},
+  {q:"إيه أكتر نشاط بيجيبلك إحساس الهدوء؟", cat:"daily"},
+  {q:"بتحب تقضي الإجازة في بيتك ولا بره؟", cat:"daily"},
+  {q:"إيه الروتين اللي ما تقدرش تنام من غيره؟", cat:"daily"},
+];
+
+// ═══════════════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════════════
+let selectedCat = 'all';
+let gameQuestions = [];
+let currentIndex = 0;
+let isFlipped = false;
+
+// ═══════════════════════════════════════════════════════════
+// FLOATING HEARTS
+// ═══════════════════════════════════════════════════════════
+function createHearts() {
+  const container = document.getElementById('heartsBg');
+  const hearts = ['♥','❤','💕','💗','💓','💞'];
+  for(let i = 0; i < 15; i++) {
+    const h = document.createElement('div');
+    h.className = 'heart-float';
+    h.textContent = hearts[Math.floor(Math.random()*hearts.length)];
+    h.style.left = Math.random()*100 + '%';
+    h.style.animationDuration = (8 + Math.random()*12) + 's';
+    h.style.animationDelay = (Math.random()*10) + 's';
+    h.style.fontSize = (0.8 + Math.random()*1.5) + 'rem';
+    container.appendChild(h);
+  }
+}
+createHearts();
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goHome() { showScreen('homeScreen'); }
+
+function selectCat(cat, btn) {
+  selectedCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// ═══════════════════════════════════════════════════════════
+// GAME LOGIC
+// ═══════════════════════════════════════════════════════════
+function getFilteredQuestions() {
+  let qs = selectedCat === 'all' ? [...allQuestions] : allQuestions.filter(q => q.cat === selectedCat);
+  return shuffle(qs);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for(let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function startGame() {
+  gameQuestions = getFilteredQuestions();
+  currentIndex = 0;
+  isFlipped = false;
+  showScreen('gameScreen');
+  loadCard();
+}
+
+function loadCard() {
+  if(currentIndex >= gameQuestions.length) {
+    showScreen('endScreen');
+    return;
+  }
+  
+  const card = document.getElementById('gameCard');
+  card.classList.remove('flipped');
+  isFlipped = false;
+  
+  const q = gameQuestions[currentIndex];
+  
+  const catLabels = {love:'❤️ الحب', future:'🌙 المستقبل', fun:'😄 مرح', deep:'🌹 عميق', daily:'☀️ يومي'};
+  
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('qNumber').textContent = `#${currentIndex+1}`;
+  document.getElementById('qCategory').textContent = catLabels[q.cat] || '';
+  
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = gameQuestions.length;
+  const done = currentIndex;
+  const pct = total > 0 ? (done / total * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${done} من ${total} سؤال`;
+  document.getElementById('statAnswered').textContent = done;
+  document.getElementById('statRemaining').textContent = total - done;
+}
+
+function flipCard() {
+  const card = document.getElementById('gameCard');
+  isFlipped = !isFlipped;
+  if(isFlipped) card.classList.add('flipped');
+  else card.classList.remove('flipped');
+}
+
+function nextCard() {
+  if(currentIndex < gameQuestions.length - 1) {
+    currentIndex++;
+    loadCard();
+  } else {
+    showScreen('endScreen');
+  }
+}
+
+function prevCard() {
+  if(currentIndex > 0) {
+    currentIndex--;
+    loadCard();
+  }
+}
+
+function shuffleCards() {
+  const remaining = gameQuestions.slice(currentIndex);
+  const shuffled = shuffle(remaining);
+  gameQuestions = [...gameQuestions.slice(0, currentIndex), ...shuffled];
+  loadCard();
+}
+
+// ═══════════════════════════════════════════════════════════
+// BROWSE MODE
+// ═══════════════════════════════════════════════════════════
+let browseCat = 'all';
+
+function showBrowse() {
+  showScreen('browseScreen');
+  renderQList('all');
+}
+
+function filterBrowse(cat, btn) {
+  browseCat = cat;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderQList(cat);
+}
+
+function renderQList(cat) {
+  const list = document.getElementById('qList');
+  const qs = cat === 'all' ? allQuestions : allQuestions.filter(q => q.cat === cat);
+  list.innerHTML = '';
+  qs.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'q-item';
+    div.textContent = `${i+1}. ${q.q}`;
+    div.onclick = () => {
+      selectedCat = cat;
+      gameQuestions = cat === 'all' ? shuffle([...allQuestions]) : shuffle(allQuestions.filter(x => x.cat === cat));
+      const idx = gameQuestions.findIndex(x => x.q === q.q);
+      currentIndex = idx >= 0 ? idx : 0;
+      isFlipped = false;
+      showScreen('gameScreen');
+      loadCard();
+    };
+    list.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>
