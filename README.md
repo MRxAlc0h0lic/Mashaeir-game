@@ -71,11 +71,11 @@
 
 ### ☀️ الوضع الفاتح
 
-<img src="screenshots/home-light.png" width="31%" alt="الشاشة الرئيسية - الوضع الفاتح"> <img src="screenshots/game-light.png" width="31%" alt="شاشة اللعب - الوضع الفاتح"> <img src="screenshots/browse-light.png" width="31%" alt="تصفح الأسئلة - الوضع الفاتح">
+<img src="home-light.png" width="31%" alt="الشاشة الرئيسية - الوضع الفاتح"> <img src="game-light.png" width="31%" alt="شاشة اللعب - الوضع الفاتح"> <img src="browse-light.png" width="31%" alt="تصفح الأسئلة - الوضع الفاتح">
 
 ### 🌙 الوضع الغامق
 
-<img src="screenshots/home-dark.png" width="31%" alt="الشاشة الرئيسية - الوضع الغامق"> <img src="screenshots/game-dark.png" width="31%" alt="شاشة اللعب - الوضع الغامق"> <img src="screenshots/browse-dark.png" width="31%" alt="تصفح الأسئلة - الوضع الغامق">
+<img src="home-dark.png" width="31%" alt="الشاشة الرئيسية - الوضع الغامق"> <img src="game-dark.png" width="31%" alt="شاشة اللعب - الوضع الغامق"> <img src="browse-dark.png" width="31%" alt="تصفح الأسئلة - الوضع الغامق">
 
 </div>
 
